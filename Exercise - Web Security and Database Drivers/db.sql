@@ -1,0 +1,6 @@
+CREATE TABLE translations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tag VARCHAR(250) NOT NULL,
+  text_en TEXT NOT NULL,
+  text_bg TEXT NOT NULL
+);
