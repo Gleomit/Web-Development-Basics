@@ -6,9 +6,9 @@
     }
 
     if(isset($_POST['todo_text'])) {
-        include_once 'db.php';
+        include_once 'TodoDb.php';
 
-        $db_access = new todo_db();
+        $db_access = new TodoDb();
 
         if($db_access->addTodoItem($_SESSION['user_id'], $_POST['todo_text'])) {
             header('Location: list.php');
@@ -21,4 +21,3 @@
         header('Location: list.php');
         die;
     }
-?>

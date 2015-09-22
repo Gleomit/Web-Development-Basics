@@ -1,17 +1,17 @@
 <?php 
-	require_once 'constants.php';
+	require_once 'DbConfig.php';
 
-	class todo_db {
-		private $DBH = null;
+	class TodoDb {
+		private $_connection = null;
 
-		private $hostname = Constants::hostname;
+		private $_hostname = DbConfig::hostname;
 
-		private $db_name = Constants::db_name;
+		private $_db_name = DbConfig::db_name;
 
 		public function __construct() {
 			try {
-				$this->DBH = new PDO("mysql:host=$this->hostname;dbname=$this->db_name",
-					Constants::username, Constants::password);
+				$this->_connection = new PDO("mysql:host=$this->_hostname;dbname=$this->_db_name",
+					DbConfig::username, DbConfig::password);
 			} catch (Exception $e) {
 				echo $e->getMessage();
 			}
@@ -22,7 +22,7 @@
 		}
 
 		public function createUser($username, $password) {
-			$STH = $this->DBH->prepare("SELECT username FROM users WHERE username = :username");
+			$STH = $this->_connection->prepare("SELECT username FROM users WHERE username = :username");
 
 			$data = array('username' => $username);
 
@@ -32,7 +32,7 @@
 				return array('message' => "There is already a user with this username..");
 			}
 
-			$STH = $this->DBH->prepare("INSERT INTO users (username, passwordHash)
+			$STH = $this->_connection->prepare("INSERT INTO users (username, passwordHash)
 										VALUES (:username, :password)");
 
 			$data = array(':username' => $username, ':password' => password_hash($password, PASSWORD_DEFAULT));
@@ -45,7 +45,7 @@
 		}
 
 		public function isUserValid ($username, $password) {
-			$STH = $this->DBH->prepare("SELECT * FROM users WHERE username = :username");
+			$STH = $this->_connection->prepare("SELECT * FROM users WHERE username = :username");
 
 			$data = array(':username' => $username);
 
@@ -63,7 +63,7 @@
 		}
 
 		public function getTodoItems($user_id) {
-			$STH = $this->DBH->prepare("SELECT id, todo_item FROM todos WHERE user_id = :user_id");
+			$STH = $this->_connection->prepare("SELECT id, todo_item FROM todos WHERE user_id = :user_id");
 
 			$data = array(':user_id' => $user_id);
 
@@ -75,7 +75,7 @@
 		}
 
 		public function addTodoItem($user_id, $todo_text) {
-			$STH = $this->DBH->prepare("INSERT INTO todos (user_id, todo_item)
+			$STH = $this->_connection->prepare("INSERT INTO todos (user_id, todo_item)
 										VALUES (:user_id, :todo_text)");
 
 			$data = array(':user_id' => $user_id,
@@ -89,7 +89,7 @@
 		}
 
 		public function deleteTodoItem($user_id, $todo_id) {
-			$STH = $this->DBH->prepare("SELECT user_id FROM todos WHERE user_id = :user_id
+			$STH = $this->_connection->prepare("SELECT user_id FROM todos WHERE user_id = :user_id
 										AND id = :todo_id");
 
 			$data = array(':user_id' => $user_id,
@@ -98,7 +98,7 @@
 			$STH->execute($data);
 
 			if($STH->rowCount() > 0) {
-				$STH = $this->DBH->prepare("DELETE FROM todos
+				$STH = $this->_connection->prepare("DELETE FROM todos
  												WHERE id = :todo_id AND user_id = :user_id");
 
 				if($STH->execute($data)) {
@@ -110,9 +110,8 @@
 		}	
 
 		private function close_db() {
-			if($this->DBH != null) {
-				$this->DBH = null;
+			if($this->_connection != null) {
+				$this->_connection = null;
 			}
 		}
 	}
-?>

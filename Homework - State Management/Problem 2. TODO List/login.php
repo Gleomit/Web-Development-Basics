@@ -3,8 +3,8 @@
         $username = htmlspecialchars($_POST['username']);
         $password = htmlspecialchars($_POST['password']);
 
-        include_once 'db.php';
-        $db_access = new todo_db();
+        include_once 'TodoDb.php';
+        $db_access = new TodoDb();
 
         $isValid = $db_access->isUserValid($username, $password);
 

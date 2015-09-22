@@ -5,4 +5,3 @@
 		const GUESSED = "Congratulations, ";
 		const INVALID_NUMBER = "Invalid Number";
 	}
- ?>

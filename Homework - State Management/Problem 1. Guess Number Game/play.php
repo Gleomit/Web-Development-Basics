@@ -18,7 +18,7 @@ if (!isset($_SESSION["numberToGuess"])) {
     $_SESSION["triesCount"] = 0;
 }
 
-include_once 'messages.php';
+include_once 'Messages.php';
 
 $username = $_SESSION["username"];
 $triesCount = intval($_SESSION['triesCount']);

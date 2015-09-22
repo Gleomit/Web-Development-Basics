@@ -5,9 +5,9 @@
         die;
     }
 
-    include_once 'db.php';
+    include_once 'TodoDb.php';
 
-    $db_access = new todo_db();
+    $db_access = new TodoDb();
 
     $todos = $db_access->getTodoItems($_SESSION['user_id']);
 

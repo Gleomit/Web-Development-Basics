@@ -6,9 +6,9 @@
     }
 
     if(isset($_GET['todo_id'])) {
-        include_once 'db.php';
+        include_once 'TodoDb.php';
 
-        $db_access = new todo_db();
+        $db_access = new TodoDb();
 
         if($db_access->deleteTodoItem($_SESSION['user_id'], $_GET['todo_id'])) {
             header('Location: list.php');
@@ -21,4 +21,3 @@
         header('Location: list.php');
         die;
     }
-?>
