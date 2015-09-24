@@ -8,8 +8,6 @@ spl_autoload_register(function($class) {
     require_once $classPath . '.php';
 });
 
-require_once 'core/App.php';
-
 \Core\Database::setInstance(
     \Config\DatabaseConfig::DB_INSTANCE,
     \Config\DatabaseConfig::DB_DRIVER,

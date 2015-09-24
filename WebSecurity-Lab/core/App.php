@@ -73,8 +73,10 @@ class App
             UPDATE users SET password = ?, username = ? WHERE id = ?
         ");
 
+        var_dump($user);
+
         $result->execute([
-            $user->getPass(),
+            password_hash($user->getPass(), PASSWORD_DEFAULT),
             $user->getUsername(),
             $user->getId()
         ]);
