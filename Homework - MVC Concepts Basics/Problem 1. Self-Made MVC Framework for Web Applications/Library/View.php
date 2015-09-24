@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Library;
+namespace Library;
 
 class View
 {
