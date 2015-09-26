@@ -1,35 +1,47 @@
 <?php
 
-namespace Library;
+namespace Framework\Library;
 
-use Config\Config;
+use Framework\Config\Config;
 
 class FrontController
 {
-    private $controller;
-    private $action;
-    private $params;
+    private $controllerName;
+    private $actionName;
+    private $requestParams;
 
-    public function __construct() {
-        $this->controller = Config::DEFAULT_CONTROLLER;
-        $this->action = Config::DEFAULT_ACTION;
+    private $controller;
+
+    public function __construct($controllerName, $actionName, $requestParams = []) {
+        $this->controllerName = $controllerName;
+        $this->actionName = $actionName;
+        $this->requestParams = $requestParams;
     }
     
     public function run() {
-        if(isset($_GET['uri'])) {
-            $uriParts = explode('/', $_GET['uri']);
-
-            $controller = array_shift($uriParts);
-            $action = array_shift($uriParts);
-
-
-
-        } else {
-            $this->invokeRoute();
-        }
+        $this->initController();
+        $this->invokeRoute();
     }
 
     private function invokeRoute() {
+        View::$controllerName = $this->controllerName;
+        View::$actionName = $this->actionName;
 
+        call_user_func_array(
+            [
+                $this->controller,
+                $this->actionName
+            ],
+            $this->requestParams
+        );
+    }
+
+    private function initController() {
+        $controllerName =
+            Config::CONTROLLERS_NAMESPACE
+            . $this->controllerName
+            . Config::CONTROLLERS_SUFFIX;
+
+        $this->controller = new $controllerName();
     }
 }

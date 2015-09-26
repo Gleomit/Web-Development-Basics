@@ -1,6 +1,6 @@
 <?php
 
-namespace Library;
+namespace Framework\Library;
 
 abstract class BaseModel
 {

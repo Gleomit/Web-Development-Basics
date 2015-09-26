@@ -1,14 +1,16 @@
 <?php
 
-namespace Library;
+namespace Framework\Library;
 
 class Autoloader
 {
     public static function register() {
         spl_autoload_register(function($class) {
-            $classPath = str_replace("\\", "/", $class);
+            $pathParams = explode("\\", $class);
+            $path = implode(DIRECTORY_SEPARATOR, $pathParams);
+            $path = str_replace($pathParams[0], "", $path);
 
-            require_once $classPath . '.php';
+            require_once $path . '.php';
         });
     }
 }

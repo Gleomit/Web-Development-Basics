@@ -1,80 +1,75 @@
 <?php
 
-namespace Models;
+namespace Framework\Models;
 
-use Config\Config;
-use Library\Database;
-use Library\BaseModel;
+use Framework\Config\Config;
+use Framework\Library\Database;
+use Framework\Library\BaseModel;
 
 class UserModel extends BaseModel
 {
     public function __construct() {
-        $this->db = Database::getInstance();
-    }
-
-    public function login($username, $password) {
-        $statement = $this->db->prepare("
-            SELECT id, password FROM Users WHERE username = ?
-        ");
-
-        $data = [$username];
-
-        $statement->execute($data);
-
-        if($statement->rowCount() > 0) {
-            $userRow = $statement->fetch(\PDO::FETCH_ASSOC);
-
-            if(password_verify($password, $userRow['password'])) {
-                $_SESSION['userId'] = $userRow['id'];
-
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        $this->db = Database::getInstance(Config::DB_INSTANCE);
     }
 
     public function register($username, $password) {
-        if($this->userExists($username)) {
-            return false;
+        if($this->exists($username)) {
+            throw new \Exception("User already registered");
         }
 
-        $statement = $this->db->prepare("
-            INSERT INTO Users (id, username, password)
-            VALUES (NULL, ?, ?)
+        $result = $this->db->prepare("
+            INSERT INTO users (username, password_hash)
+            VALUES (?, ?)
         ");
 
-        $data = [
+        $result->execute([
             $username,
-            password_hash($password, PASSWORD_DEFAULT)
-        ];
+            password_hash($password, PASSWORD_DEFAULT),
+        ]);
 
-        if($statement->execute($data)) {
-            if(Config::AUTO_LOGIN_ON_REGISTER) {
-                $this->login($username, $password);
-            }
-
+        if($result->rowCount() > 0) {
             return true;
-        } else {
-            return false;
         }
+
+        throw new \Exception("Cannot register user");
     }
 
-    public function userExists($username) {
-        $statement = $this->db->prepare("
-            SELECT id FROM Users WHERE username = ?
+
+    private function exists($username) {
+        $result = $this->db->prepare("
+            SELECT id FROM users WHERE username = ?
         ");
 
-        $data = [$username];
+        $result->execute([
+            $username
+        ]);
 
-        $statement->execute($data);
-
-        if($statement->rowCount() > 0) {
+        if($result->rowCount() > 0) {
             return true;
+        }
+
+        return false;
+    }
+
+    public function login($username, $password) {
+        $result = $this->db->prepare("
+            SELECT * FROM users WHERE username = ?
+        ");
+
+        $result->execute([
+            $username
+        ]);
+
+        if($result->rowCount() <= 0) {
+            throw new \Exception("Invalid username");
+        }
+
+        $userRow = $result->fetch();
+
+        if(password_verify($password, $userRow['password_hash'])) {
+            return $userRow['id'];
         } else {
-            return false;
+            throw new \Exception("Password not match");
         }
     }
 }

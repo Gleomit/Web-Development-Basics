@@ -1,29 +1,62 @@
 <?php
 
-namespace Library;
+namespace Framework\Library;
 
-use Config\Config;
+use Framework\Library\Drivers\Statement;
+use Framework\Library\Drivers\DriverFactory;
 
 class Database
 {
+    private static $_instances = array();
+
     /**
      * @var \PDO
      */
-    private static $pdo;
+    private $db;
 
-    public function __construct($pdo) {
-        static::$pdo = $pdo;
+    private function __construct ($pdoInstance) {
+        $this->db = $pdoInstance;
     }
 
-    /**
-     * @return \PDO
-     */
-    public static function getInstance() {
-        if(static::$pdo == null) {
-            static::$pdo = new \PDO('mysql:host=' . Config::DB_HOST . 'dbname=' . Config::DB_NAME,
-                Config::DB_USER, Config::DB_PASSWORD);
+    public static function getInstance ($instanceName = 'default') {
+        if(!isset(self::$_instances[$instanceName])) {
+            throw new \Exception("Instance with this name does not exists.");
         }
 
-        return static::$pdo;
+        return static::$_instances[$instanceName];
+    }
+
+    public static function setInstance ($instanceName, $driver, $user, $pass, $dbName, $host = null) {
+        $driver = DriverFactory::create($driver, $user, $pass, $dbName, $host);
+
+        $pdo = new \PDO($driver->getDsn(), $user, $pass);
+
+        self::$_instances[$instanceName] = new self($pdo);
+    }
+
+    public function prepare($statement, array $driverOptions = []) {
+        $statement = $this->db->prepare($statement, $driverOptions);
+
+        return new Statement($statement);
+    }
+
+    public function query($query) {
+        return $this->db->query($query);
+    }
+
+    public function lastId($name = null) {
+        return $this->db->lastInsertId($name);
+    }
+
+    public function beginTransaction() {
+        return $this->db->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->db->commit();
+    }
+
+    public function rollBack() {
+        return $this->db->rollBack();
     }
 }

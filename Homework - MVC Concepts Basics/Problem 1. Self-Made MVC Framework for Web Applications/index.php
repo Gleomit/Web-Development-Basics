@@ -1,8 +1,16 @@
 <?php
-    require_once 'Library\Autoloader.php';
+require_once 'Library\Autoloader.php';
 
-    Library\Autoloader::register();
+Framework\Library\Autoloader::register();
 
-    $frontController = new Library\FrontController();
+Framework\Helpers\Session::start();
 
-    $frontController->run();
+$app = new \Framework\App();
+
+$app->init();
+
+$app->start();
+
+$frontController = new Framework\Library\FrontController($app->getController(), $app->getAction(), $app->getRequestParams());
+
+$frontController->run();
